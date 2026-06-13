@@ -4,6 +4,7 @@ Get [vAmPI](https://github.com/erev0s/VAmPI) ready for agentification
 Before you do most things, you should know why. In this case, it's to test APIs and in doing so, show that modern API Security tooling can detect when an MCP (Model Context Protocol) server has been deployed. This is important, because it's how APIs are being automated as agents. And if intended use cases can be automated, so can unintended ones...or chained together. Now that you know why, let's begin.
 ## How
 The diagram below shows us how we've wired things together. We'll start from vAmPI (a Flask app) and ignore the components below it. Notice the mapping from REST to MCP starting at line 46 below. Notice how `/createdb` (REST-ified) becomes `populate_db` (MCPized). The MCP Server uses JSON RPC (Remote Procedure Call) to abstract & standardize the lower level implementation of RESTful interfaces.
+```
 ┌─────────────────────────────────────────────────────────────────────┐
 │  MCP CLIENT   (Claude Code / LLM agent)                             │
 └─────────────────────────────────────────────────────────────────────┘
@@ -82,3 +83,4 @@ The diagram below shows us how we've wired things together. We'll start from vAm
 │  DATABASE   (config.db SQLAlchemy engine — SQLite by VAmPI default)   │
 │  seeded by /createdb → name1/pass1, name2/pass2, admin/pass1 (admin)  │
 └───────────────────────────────────────────────────────────────────────┘
+```
