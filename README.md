@@ -3,7 +3,7 @@ Get [vAmPI](https://github.com/erev0s/VAmPI) ready for agentification
 ## Why
 Before you do most things, you should know why. In this case, it's to understand the implications of new API usage patterns and in doing so, show that modern API Security tooling must detect when an MCP (Model Context Protocol) server has been deployed. This is important, because it's how APIs are being automated as agents. And if intended use cases can be automated, so can unintended ones...or chained together. We'll first show the visibility problem and in future exercises, the additional consequences. Now that you know why, let's begin.
 ## How
-The diagram below shows us how we've wired things together. We'll start from vAmPI (a Flask app) and ignore the components below it. Notice the mapping from REST to MCP starting at [line 46](#line46) below. Notice how `/createdb` (REST-ified) becomes `populate_db` (MCPized). The MCP Server uses JSON RPC (Remote Procedure Call) to abstract & standardize the lower level implementation of RESTful interfaces.
+The diagram below shows us how we've wired things together. We'll start from vAmPI (a Flask app) and ignore the components below it. Notice the mapping from REST to MCP starting near the top of the third box below. Notice how `/createdb` (REST-ified) becomes `populate_db` (MCPized). The MCP Server uses JSON RPC (Remote Procedure Call) to abstract & standardize the lower level implementation of RESTful interfaces. By taking this step, MCP enables agents to use a single repeatable structure to call most popular APIs out there today.
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │  MCP CLIENT   (Claude Code / LLM agent)                             │
@@ -43,7 +43,7 @@ The diagram below shows us how we've wired things together. We'll start from vAm
 │  flags:  vuln = $vulnerable (default 1)   alive = $tokentimetolive(60) │
 │                                                                        │
 │  ROUTES         RAW RESTful                    MCP Wrapper             │
-│────────────────────────────────────────────────────────────────────────| <a name="line46"></a>
+│────────────────────────────────────────────────────────────────────────| 
 │   main.py    GET    /                      basic()  (banner+vuln flag) │
 │              GET    /createdb              populate_db()  drop + seed  │
 │                                                                        │
