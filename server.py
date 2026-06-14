@@ -10,6 +10,7 @@ VAmPI OpenAPI spec: openapi_specs/openapi3.yml (erev0s/VAmPI)
 MCP spec:           2025-11-25
 
 Transport: stdio (default FastMCP).
+
 Config via environment:
     VAMPI_BASE_URL   Base URL of the running VAmPI instance
                      (default: http://localhost:5000)
@@ -18,7 +19,7 @@ Config via environment:
 Auth model
 ----------
 VAmPI uses JWT bearer tokens: `Authorization: Bearer <token>`.
-Call `login` once to obtain and cache a token in the server session; subsequent              
+Call `login` once to obtain and cache a token in the server session; subsequent
 authenticated tools reuse it automatically. Any authenticated tool also accepts
 an explicit `auth_token` argument to override the cached token for that call.
 """
@@ -32,7 +33,7 @@ import httpx
 from mcp.server.fastmcp import FastMCP
 
 # --------------------------------------------------------------------------- #
-# Configuration & shared state
+# Configuration & shared state                                                 #
 # --------------------------------------------------------------------------- #
 
 BASE_URL = os.environ.get("VAMPI_BASE_URL", "http://172.31.43.19:5000").rstrip("/")
@@ -51,16 +52,15 @@ mcp = FastMCP("vampi", host=MCP_HOST, port=MCP_PORT, streamable_http_path=MCP_PA
 _session: dict[str, Optional[str]] = {"auth_token": None, "username": None}
 
 
-# --------------------------------------------------------------------------- #              
-# HTTP helper
 # --------------------------------------------------------------------------- #
-def _request(                                                                                    
-  method: str,
-    path: str,                                                                                   
-  *,
-                                                                                           
-  json_body: Optional[dict] = None,                                                            
-  auth_token: Optional[str] = None,
+# HTTP helper                                                                  #
+# --------------------------------------------------------------------------- #
+def _request(
+    method: str,
+    path: str,
+    *,
+    json_body: Optional[dict] = None,
+    auth_token: Optional[str] = None,
     use_session_token: bool = False,
     timeout_override: Optional[float] = None,
 ) -> dict[str, Any]:
@@ -144,9 +144,8 @@ def _request(
 
 
 # --------------------------------------------------------------------------- #
-# Meta / DB tools  (crAPI health/seed  ->  VAmPI home/createdb)
+# Meta / DB tools  (crAPI health/seed  ->  VAmPI home/createdb)                 #
 # --------------------------------------------------------------------------- #
-
 @mcp.tool()
 def home() -> dict[str, Any]:
     """GET / — VAmPI home/help banner. Confirms the API is reachable and whether
@@ -157,15 +156,15 @@ def home() -> dict[str, Any]:
 @mcp.tool()
 def create_db() -> dict[str, Any]:
     """GET /createdb — (Re)create and seed the VAmPI database with dummy data.
+
     Seeds users name1/pass1, name2/pass2, and admin/pass1 (admin), each owning a
     random book. Destroys any existing data."""
     return _request("GET", "/createdb")
 
 
 # --------------------------------------------------------------------------- #
-# User tools  (crAPI identity endpoints  ->  VAmPI /users/v1 + /me)
+# User tools  (crAPI identity endpoints  ->  VAmPI /users/v1 + /me)            #
 # --------------------------------------------------------------------------- #
-
 @mcp.tool()
 def get_all_users() -> dict[str, Any]:
     """GET /users/v1 — List all users with basic info (username, email)."""
@@ -177,6 +176,7 @@ def debug_users() -> dict[str, Any]:
     """GET /users/v1/_debug — List ALL user details including passwords and admin
     flags. (Intentionally vulnerable debug endpoint.)"""
     return _request("GET", "/users/v1/_debug")
+
 
 @mcp.tool()
 def register_user(
@@ -289,30 +289,31 @@ def delete_user(
         "DELETE",
         f"/users/v1/{username}",
         auth_token=auth_token,
-        use_session_token=True,                                                                  
+        use_session_token=True,
     )
 
 
 # --------------------------------------------------------------------------- #
-# Book tools  (crAPI resource endpoints  ->  VAmPI /books/v1)
+# Book tools  (crAPI resource endpoints  ->  VAmPI /books/v1)                  #
 # --------------------------------------------------------------------------- #
-              @mcp.tool()
-def get_all_books() -> dict[str, Any]:                                                           
-"""GET /books/v1 — List all books (title + owning user)."""                                  
-return _request("GET", "/books/v1")
+@mcp.tool()
+def get_all_books() -> dict[str, Any]:
+    """GET /books/v1 — List all books (title + owning user)."""
+    return _request("GET", "/books/v1")
 
-@mcp.tool()                                                                                  
+
+@mcp.tool()
 def add_book(
-    book_title: str,                                                                             
-  secret: str,                                                                                 
-  auth_token: Optional[str] = None,                                                        
-) -> dict[str, Any]:                                                                             
-  """POST /books/v1 — Add a new book with a secret only the owner should read.
-    Requires auth."""                                                                            
-return _request(                                                                                 
-  "POST",                                                                                      
-  "/books/v1",                                                                                 
-  json_body={"book_title": book_title, "secret": secret},
+    book_title: str,
+    secret: str,
+    auth_token: Optional[str] = None,
+) -> dict[str, Any]:
+    """POST /books/v1 — Add a new book with a secret only the owner should read.
+    Requires auth."""
+    return _request(
+        "POST",
+        "/books/v1",
+        json_body={"book_title": book_title, "secret": secret},
         auth_token=auth_token,
         use_session_token=True,
     )
