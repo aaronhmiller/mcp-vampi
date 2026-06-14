@@ -2,7 +2,25 @@
 Get [vAmPI](https://github.com/erev0s/VAmPI) ready for agentification
 ## Why
 Before you do most things, you should know why. In this case, it's to understand the implications of new API usage patterns and in doing so, show that modern API Security tooling must detect when an [MCP (Model Context Protocol)](https://modelcontextprotocol.io/specification/2025-11-25) server has been deployed. This is important, because it's how APIs are being automated as agents. And if intended use cases can be automated, so can unintended ones...or chained together. We'll first show the visibility problem and in future exercises, the additional consequences. Now that you know why, let's begin.
-## How
+## Prerequisites
+* We're assuming you know your way around a command line and Linux.
+* Git clone this repo down and set it up so you can do the below.
+* It assumes you've setup vAmPI on another machine but w/in the same subnet.
+* You'll also want venv installed.
+* And Claude Desktop
+* And Node
+## Usage
+Here's an example CLI that'll get the server running. Handy b/c you can debug via STDOUT.
+```
+MCP_TRANSPORT=streamable-http \
+MCP_HOST=0.0.0.0 \
+MCP_PORT=8009 \
+MCP_PATH=/mcp \
+VAMPI_BASE_URL=http://172.31.43.19:5000 \
+VAMPI_TIMEOUT=30 \
+/opt/vampi-mcp/.venv/bin/python /opt/vampi-mcp/server.py
+```
+## Overview and Background
 The diagram below shows us how we've wired things together. We'll start from vAmPI (a Flask app) and ignore the components below it (database and models). Notice the mapping from REST to MCP starting near the top of the third box below. Notice how `/createdb` (REST-ified) becomes `populate_db` (MCPized). The MCP Server uses [JSON RPC (Remote Procedure Calls)](https://www.jsonrpc.org/specification) to abstract & standardize the lower level implementation of RESTful interfaces. By taking this step, MCP enables [LLM agents](https://medium.com/@lekeonilude/the-role-of-mcp-in-llm-agents-cff9fc5fa96c) to use a single repeatable structure to call most popular APIs out there today.
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -17,7 +35,7 @@ The diagram below shows us how we've wired things together. We'll start from vAm
 ║  User/Group=vampimcp   WorkingDirectory=/opt/vampi-mcp                  ║
 ║  ExecStart=/opt/vampi-mcp/.venv/bin/python server.py                    ║
 ║  Restart=on-failure · hardening: NoNewPrivileges, ProtectSystem=strict… ║
-║  Env: MCP_TRANSPORT=streamable-http  MCP_HOST=127.0.0.1  MCP_PORT=8009  ║
+║  Env: MCP_TRANSPORT=streamable-http  MCP_HOST=0.0.0.0  MCP_PORT=8009  ║
 ║       MCP_PATH=/mcp   VAMPI_BASE_URL=…:5000   VAMPI_TIMEOUT=30          ║
 ║                                                                         ║
 ║   ┌────────────────────────────────────────────────────────────────┐    ║
@@ -84,3 +102,9 @@ The diagram below shows us how we've wired things together. We'll start from vAm
 │  seeded by /createdb → name1/pass1, name2/pass2, admin/pass1 (admin)  │
 └───────────────────────────────────────────────────────────────────────┘
 ```
+## Screenshots and the goal
+<img width="480" height="355" alt="image" src="https://github.com/user-attachments/assets/ac652542-5da9-4607-a63d-f30ffb60771f" />
+<br><br>
+When you've everything wired up, you can run API commands in plain English!
+
+<img width="600" height="400" alt="image" src="https://github.com/user-attachments/assets/152bbfec-645e-414a-892f-ba149d12e58d" />
