@@ -6,9 +6,11 @@ Full credit belongs to [Michael Cropsey](https://github.com/mcropsey), who lead 
 Before you do most things, you should know why. In this case, it's to understand the implications of new API usage patterns and in doing so, show that modern API Security tooling must detect when an [MCP (Model Context Protocol)](https://modelcontextprotocol.io/specification/2025-11-25) server has been deployed. This is important, because it's how APIs are being automated as agents. And if intended use cases can be automated, so can unintended ones...or chained together. We'll first show the visibility problem and in future exercises, the additional consequences. Now that you know why, let's begin.
 ## Prerequisites
 * We're assuming you know your way around a command line and Linux.
+  ### Server side
 * Git clone this repo down and set it up so you can do the below.
 * It assumes you've setup [vAmPI](https://github.com/erev0s/VAmPI) on another machine but w/in the same subnet.
 * You'll also want [venv](https://docs.python.org/3/library/venv.html) prepped.
+  ### Client side
 * A [Claude](https://claude.ai) account and Claude Desktop
 * And [Node](https://nodejs.org/en/download)
 ## Usage
