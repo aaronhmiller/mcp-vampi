@@ -108,3 +108,22 @@ The diagram below shows us how we've wired things together. We'll start from vAm
 When you've everything wired up, you can run API commands in plain English!
 
 <img width="600" height="400" alt="image" src="https://github.com/user-attachments/assets/152bbfec-645e-414a-892f-ba149d12e58d" />
+
+## Debugging
+When you need to diagnose something, after asking Claude, lean into STDOUT for the server, [curl](https://curl.se/) or [httpie](https://httpie.io/) for the client commands. Here are a couple representative commands to get you started. The rest are deriveable from the [OAS](https://github.com/erev0s/VAmPI/blob/master/openapi_specs/openapi3.yml) or the [Postman Collection](https://github.com/erev0s/VAmPI/blob/master/openapi_specs/VAmPI.postman_collection.json):
+
+#### populate the db
+request: `curl 18.191.213.77:5000/createdb`
+<br>
+response: `{ "message": "Database populated." }`
+#### login
+req: `http 18.191.213.77:5000/users/v1/login password=pass2 username=name2`
+<br>
+res: 
+```
+{
+    "auth_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODEzOTg3MDcsImlhdCI6MTc4MTM5ODY0Nywic3ViIjoibmFtZTIifQ._fErlNo3Jl-suPj1yvjjfQgyoaAq9lITcD1zY3iXYJM",
+    "message": "Successfully logged in.",
+    "status": "success"                                                                  
+}
+```
