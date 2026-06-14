@@ -30,7 +30,7 @@ VAMPI_TIMEOUT=30 \
 ### Client (Claude Desktop) side
 Into your MCP server stanza (screenshot towards bottom) in your Claude Desktop Developer Settings, add:
 ```
-    "vampi": {
+    "mcp-vampi": {
       "command": "/opt/homebrew/bin/npx",
       "args": ["-y", "mcp-remote", "http://<IP_MCP_SERVER>:8009/mcp", "--allow-http"]
     }
