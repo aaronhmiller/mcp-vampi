@@ -7,6 +7,7 @@ Before you do most things, you should know why. In this case, it's to understand
 ## Prerequisites
 * We're assuming you know your way around a command line and Linux.
   ### Server side
+* If not already there, install git and python311 (on RHEL, `sudo dnf install git python311`)
 * Git clone this repo down and set it up so you can do the below.
 * It assumes you've setup [vAmPI](https://github.com/erev0s/VAmPI) on another machine but w/in the same subnet.
 * You'll also want [venv](https://docs.python.org/3/library/venv.html) prepped.
