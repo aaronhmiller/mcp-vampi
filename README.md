@@ -9,8 +9,8 @@ Before you do most things, you should know why. In this case, it's to understand
 * Git clone this repo down and set it up so you can do the below.
 * It assumes you've setup vAmPI on another machine but w/in the same subnet.
 * You'll also want venv installed.
-* And Claude Desktop
-* And Node
+* A [Claude](https://claude.ai) account and Claude Desktop
+* And [Node](https://nodejs.org/en/download)
 ## Usage
 Here's an example CLI that'll get the server running. Handy b/c you can debug via STDOUT.
 ```
