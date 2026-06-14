@@ -1,5 +1,7 @@
 # mcp-vampi
 Get [vAmPI](https://github.com/erev0s/VAmPI) ready for agentification
+## Shoulder of giant
+Full credit belongs to [Michael Cropsey](https://github.com/mcropsey), who lead the way with [this](https://github.com/mcropsey/claude-crapi-mcp-remote-server-demo). Thank you sir! 🫡
 ## Why
 Before you do most things, you should know why. In this case, it's to understand the implications of new API usage patterns and in doing so, show that modern API Security tooling must detect when an [MCP (Model Context Protocol)](https://modelcontextprotocol.io/specification/2025-11-25) server has been deployed. This is important, because it's how APIs are being automated as agents. And if intended use cases can be automated, so can unintended ones...or chained together. We'll first show the visibility problem and in future exercises, the additional consequences. Now that you know why, let's begin.
 ## Prerequisites
