@@ -17,6 +17,7 @@ Before you do most things, you should know why. In this case, it's to understand
 * And [Node](https://nodejs.org/en/download)
 ## Usage
 Here's an example CLI that'll get the server running. Handy b/c you can debug via STDOUT.
+### Server side
 ```
 MCP_TRANSPORT=streamable-http \
 MCP_HOST=0.0.0.0 \
@@ -25,6 +26,13 @@ MCP_PATH=/mcp \
 VAMPI_BASE_URL=http://172.31.43.19:5000 \
 VAMPI_TIMEOUT=30 \
 /opt/mcp-vampi/.venv/bin/python /opt/mcp-vampi/server.py
+```
+### Client (Claude Desktop) side
+Into your MCP server stanza (screenshot towards bottom) in your Claude Desktop Developer Settings, add:
+```   "vampi": {
+      "command": "/opt/homebrew/bin/npx",
+      "args": ["-y", "mcp-remote", "http://<IP_MCP_SERVER>:8009/mcp", "--allow-http"]
+    }
 ```
 ## Overview and Background
 The diagram below shows us how we've wired things together. We'll start from vAmPI (a Flask app) and ignore the components below it (database and models). Notice the mapping from REST to MCP starting near the top of the third box below. Notice how `/createdb` (REST-ified) becomes `populate_db` (MCPized). The MCP Server uses [JSON RPC (Remote Procedure Calls)](https://www.jsonrpc.org/specification) to abstract & standardize the lower level implementation of RESTful interfaces. By taking this step, MCP enables [LLM agents](https://medium.com/@lekeonilude/the-role-of-mcp-in-llm-agents-cff9fc5fa96c) to use a single repeatable structure to call most popular APIs out there today.
