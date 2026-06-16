@@ -11,6 +11,7 @@ Before you do most things, you should know why. In this case, it's to understand
 * Git clone this repo down and set it up so you can do the below.
 * It assumes you've setup [vAmPI](https://github.com/erev0s/VAmPI) on another machine but w/in the same subnet.
 * You'll also want [venv](https://docs.python.org/3/library/venv.html) prepped.
+* [Install the requirements](
 * Be gentle on yourself: `sudo chown -R $USER:$USER /opt/mcp-vampi`
   ### Client side
 * A [Claude](https://claude.ai) account and Claude Desktop
@@ -38,7 +39,7 @@ MCP_STATELESS=true \
 MCP_JSON_RESPONSE=true \
 VAMPI_BASE_URL=http://172.31.43.19:5000 \
 VAMPI_TIMEOUT=30 \
-/opt/mcp-vampi/.venv/bin/python /opt/mcp-vampi/server.py
+sudo /opt/mcp-vampi/.venv/bin/python /opt/mcp-vampi/server.py
 ```
 NOTE: transport unintuitively stays streamable, but we've added MCP_STATELESS and MCP_JSON_RESPONSE and set them both to TRUE.
 ### Client (Claude Desktop) side
