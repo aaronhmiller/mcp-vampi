@@ -17,22 +17,36 @@ Before you do most things, you should know why. In this case, it's to understand
 * And [Node](https://nodejs.org/en/download)
 ## Usage
 Here's an example CLI that'll get the server running. Handy b/c you can debug via STDOUT.
-### Server side
+### Server side 
+#### (streaming or stateful)
 ```
 MCP_TRANSPORT=streamable-http \
 MCP_HOST=0.0.0.0 \
-MCP_PORT=8009 \
+MCP_PORT=80 \
 MCP_PATH=/mcp \
 VAMPI_BASE_URL=http://172.31.43.19:5000 \
 VAMPI_TIMEOUT=30 \
 /opt/mcp-vampi/.venv/bin/python /opt/mcp-vampi/server.py
 ```
+#### (onesy twosy or stateless)
+```
+MCP_TRANSPORT=streamable-http \
+MCP_HOST=0.0.0.0 \
+MCP_PORT=80 \
+MCP_PATH=/mcp \
+MCP_STATELESS=true \
+MCP_JSON_RESPONSE=true \
+VAMPI_BASE_URL=http://172.31.43.19:5000 \
+VAMPI_TIMEOUT=30 \
+/opt/mcp-vampi/.venv/bin/python /opt/mcp-vampi/server.py
+```
+NOTE: transport unintuitively stays streamable, but we've added MCP_STATELESS and MCP_JSON_RESPONSE and set them both to TRUE.
 ### Client (Claude Desktop) side
 Into your MCP server stanza (screenshot towards bottom) in your Claude Desktop Developer Settings, add:
 ```
     "mcp-vampi": {
       "command": "/opt/homebrew/bin/npx",
-      "args": ["-y", "mcp-remote", "http://<IP_MCP_SERVER>:8009/mcp", "--allow-http"]
+      "args": ["-y", "mcp-remote", "http://<IP_MCP_SERVER>/mcp", "--allow-http"]
     }
 ```
 ## Overview and Background
