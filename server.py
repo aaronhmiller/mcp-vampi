@@ -10,7 +10,6 @@ VAmPI OpenAPI spec: openapi_specs/openapi3.yml (erev0s/VAmPI)
 MCP spec:           2025-11-25
 
 Transport: stdio (default FastMCP).
-
 Config via environment:
     VAMPI_BASE_URL   Base URL of the running VAmPI instance
                      (default: http://localhost:5000)
@@ -33,7 +32,7 @@ import httpx
 from mcp.server.fastmcp import FastMCP
 
 # --------------------------------------------------------------------------- #
-# Configuration & shared state                                                 #
+# Configuration & shared state
 # --------------------------------------------------------------------------- #
 
 BASE_URL = os.environ.get("VAMPI_BASE_URL", "http://172.31.43.19:5000").rstrip("/")
@@ -46,15 +45,38 @@ MCP_HOST = os.environ.get("MCP_HOST", "0.0.0.0")
 MCP_PORT = int(os.environ.get("MCP_PORT", "8009"))
 MCP_PATH = os.environ.get("MCP_PATH", "/mcp")
 
-mcp = FastMCP("vampi", host=MCP_HOST, port=MCP_PORT, streamable_http_path=MCP_PATH)
+
+def _env_flag(name: str, default: bool) -> bool:
+    return os.environ.get(name, str(default)).strip().lower() in ("1", "true", "yes", "on")
+
+
+# Streamable HTTP response framing (only relevant when MCP_TRANSPORT=streamable-http;
+# stdio ignores both):
+#   MCP_JSON_RESPONSE=true  -> POST /mcp replies as a single application/json body
+#                              instead of a text/event-stream SSE event.
+#   MCP_STATELESS=true      -> no per-session Mcp-Session-Id round-trip and no
+#                              long-lived GET /mcp SSE notification channel.
+# Set either to false to fall back to streaming for an A/B against the mirror.
+MCP_JSON_RESPONSE = _env_flag("MCP_JSON_RESPONSE", True)
+MCP_STATELESS = _env_flag("MCP_STATELESS", True)
+
+mcp = FastMCP(
+    "vampi",
+    host=MCP_HOST,
+    port=MCP_PORT,
+    streamable_http_path=MCP_PATH,
+    json_response=MCP_JSON_RESPONSE,
+    stateless_http=MCP_STATELESS,
+)
 
 # Cached bearer token populated by `login`.
 _session: dict[str, Optional[str]] = {"auth_token": None, "username": None}
 
 
 # --------------------------------------------------------------------------- #
-# HTTP helper                                                                  #
+# HTTP helper
 # --------------------------------------------------------------------------- #
+
 def _request(
     method: str,
     path: str,
@@ -62,23 +84,14 @@ def _request(
     json_body: Optional[dict] = None,
     auth_token: Optional[str] = None,
     use_session_token: bool = False,
-    timeout_override: Optional[float] = None,
 ) -> dict[str, Any]:
     """Send a request to VAmPI and return a normalized result dict.
 
     Returns keys:
-        status_code : int HTTP status (None if the request never completed)
+        status_code : int HTTP status
         ok          : bool (2xx)
         data        : parsed JSON (dict/list) when present, else None
-        text        : raw response body (only when JSON parse fails)
-        message     : human-readable note for empty-body successes (e.g. 204)
-        error       : present only on transport/timeout/unexpected failure
-
-    Timeout handling is explicit: we build an ``httpx.Timeout`` so the read
-    phase is always bounded. A scalar passed as ``timeout=`` already bounds all
-    phases, but constructing it explicitly (a) documents intent and (b) lets a
-    caller cap a single endpoint independently of the global ``VAMPI_TIMEOUT``
-    so one slow write can never stall the MCP client for minutes.
+        text        : raw response body (only when JSON parse fails / empty)
     """
     url = f"{BASE_URL}{path}"
     headers: dict[str, str] = {}
@@ -91,36 +104,17 @@ def _request(
     if json_body is not None:
         headers["Content-Type"] = "application/json"
 
-    effective = timeout_override if timeout_override is not None else TIMEOUT
-    # Bound every phase. Keep connect short so an unreachable host fails fast;
-    # bound read/write/pool by the effective per-call budget.
-    timeout = httpx.Timeout(
-        effective,
-        connect=min(effective, 10.0),
-    )
-
     try:
         resp = httpx.request(
-            method, url, json=json_body, headers=headers, timeout=timeout
+            method, url, json=json_body, headers=headers, timeout=TIMEOUT
         )
-    except httpx.TimeoutException as exc:
-        # Surface explicitly so a stalled write reports instead of hanging.
+    except httpx.HTTPError as exc:
         return {
             "status_code": None,
             "ok": False,
             "data": None,
             "text": None,
-            "error": f"Request to {url} timed out after {effective}s: {exc}",
-        }
-    except Exception as exc:  # noqa: BLE001 - never let a tool call hang/raise
-        # Catch broadly: any unexpected error becomes a normal result dict
-        # rather than propagating out of the tool and stalling the MCP runtime.
-        return {
-            "status_code": None,
-            "ok": False,
-            "data": None,
-            "text": None,
-            "error": f"Request to {url} failed: {type(exc).__name__}: {exc}",
+            "error": f"Request to {url} failed: {exc}",
         }
 
     result: dict[str, Any] = {
@@ -136,16 +130,14 @@ def _request(
             result["data"] = resp.json()
         except ValueError:
             result["text"] = resp.text
-    elif resp.is_success:
-        # 204 / empty body is normal for VAmPI email & password updates.
-        # Make success explicit so callers don't read null data as ambiguous.
-        result["message"] = f"HTTP {resp.status_code} (no content) — update applied."
+    # 204 / empty body is normal for VAmPI email & password updates.
     return result
 
 
 # --------------------------------------------------------------------------- #
-# Meta / DB tools  (crAPI health/seed  ->  VAmPI home/createdb)                 #
+# Meta / DB tools  (crAPI health/seed  ->  VAmPI home/createdb)
 # --------------------------------------------------------------------------- #
+
 @mcp.tool()
 def home() -> dict[str, Any]:
     """GET / — VAmPI home/help banner. Confirms the API is reachable and whether
@@ -156,15 +148,15 @@ def home() -> dict[str, Any]:
 @mcp.tool()
 def create_db() -> dict[str, Any]:
     """GET /createdb — (Re)create and seed the VAmPI database with dummy data.
-
     Seeds users name1/pass1, name2/pass2, and admin/pass1 (admin), each owning a
     random book. Destroys any existing data."""
     return _request("GET", "/createdb")
 
 
 # --------------------------------------------------------------------------- #
-# User tools  (crAPI identity endpoints  ->  VAmPI /users/v1 + /me)            #
+# User tools  (crAPI identity endpoints  ->  VAmPI /users/v1 + /me)
 # --------------------------------------------------------------------------- #
+
 @mcp.tool()
 def get_all_users() -> dict[str, Any]:
     """GET /users/v1 — List all users with basic info (username, email)."""
@@ -261,20 +253,13 @@ def update_password(
 ) -> dict[str, Any]:
     """PUT /users/v1/{username}/password — Update a user's password. Returns HTTP
     204 (empty body) on success. Requires auth. (In vulnerable mode this can
-    update another user's password — BOLA.)
-
-    This endpoint is capped at a short per-call timeout (independent of the
-    global VAMPI_TIMEOUT) so a stalled write reports a clean timeout error in
-    seconds instead of hanging the MCP client for minutes. On success the
-    result includes a ``message`` noting the 204.
-    """
+    update another user's password — BOLA.)"""
     return _request(
         "PUT",
         f"/users/v1/{username}/password",
         json_body={"password": password},
         auth_token=auth_token,
         use_session_token=True,
-        timeout_override=15.0,
     )
 
 
@@ -294,8 +279,9 @@ def delete_user(
 
 
 # --------------------------------------------------------------------------- #
-# Book tools  (crAPI resource endpoints  ->  VAmPI /books/v1)                  #
+# Book tools  (crAPI resource endpoints  ->  VAmPI /books/v1)
 # --------------------------------------------------------------------------- #
+
 @mcp.tool()
 def get_all_books() -> dict[str, Any]:
     """GET /books/v1 — List all books (title + owning user)."""
