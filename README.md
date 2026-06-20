@@ -23,7 +23,7 @@ Here's an example CLI that'll get the server running. Handy b/c you can debug vi
 ```
 MCP_TRANSPORT=streamable-http \
 MCP_HOST=0.0.0.0 \
-MCP_PORT=80 \
+MCP_PORT=8000 \
 MCP_PATH=/mcp \
 VAMPI_BASE_URL=http://172.31.43.19:5000 \
 VAMPI_TIMEOUT=30 \
@@ -33,7 +33,7 @@ VAMPI_TIMEOUT=30 \
 ```
 MCP_TRANSPORT=streamable-http \
 MCP_HOST=0.0.0.0 \
-MCP_PORT=80 \
+MCP_PORT=8000 \
 MCP_PATH=/mcp \
 MCP_STATELESS=true \
 MCP_JSON_RESPONSE=true \
@@ -47,7 +47,7 @@ Into your MCP server stanza (screenshot towards bottom) in your Claude Desktop D
 ```
     "mcp-vampi": {
       "command": "/opt/homebrew/bin/npx",
-      "args": ["-y", "mcp-remote", "http://<IP_MCP_SERVER>/mcp", "--allow-http"]
+      "args": ["-y", "mcp-remote", "http://<IP_MCP_SERVER>:8000/mcp", "--allow-http"]
     }
 ```
 ## Overview and Background
@@ -58,7 +58,7 @@ The diagram below shows us how we've wired things together. We'll start from vAm
 └─────────────────────────────────────────────────────────────────────┘
                 │
                 │  MCP · Streamable HTTP
-                │  POST http://3.19.71.128:8009/mcp
+                │  POST http://3.19.71.128:8000/mcp
                 ▼
 ╔═════════════════════════════════════════════════════════════════════════╗
 ║  systemd unit:  vampi-mcp.service                                       ║
