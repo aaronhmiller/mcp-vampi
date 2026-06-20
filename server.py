@@ -40,7 +40,8 @@ TIMEOUT = float(os.environ.get("VAMPI_TIMEOUT", "30"))
 
 # Transport selection (default stdio so MCP clients can spawn it directly).
 # For a long-running systemd service set MCP_TRANSPORT=streamable-http.
-MCP_TRANSPORT = os.environ.get("MCP_TRANSPORT", "stdio")
+# And for a stateless service, try MCP_TRANSPORT=stdio (needs testing)
+MCP_TRANSPORT = os.environ.get("MCP_TRANSPORT", "streamable-http")
 MCP_HOST = os.environ.get("MCP_HOST", "0.0.0.0")
 MCP_PORT = int(os.environ.get("MCP_PORT", "8000"))
 MCP_PATH = os.environ.get("MCP_PATH", "/mcp")
@@ -135,7 +136,7 @@ def _request(
 
 
 # --------------------------------------------------------------------------- #
-# Meta / DB tools  (crAPI health/seed  ->  VAmPI home/createdb)
+# Meta / DB tools  (VAmPI home/createdb)
 # --------------------------------------------------------------------------- #
 
 @mcp.tool()
@@ -279,7 +280,7 @@ def delete_user(
 
 
 # --------------------------------------------------------------------------- #
-# Book tools  (crAPI resource endpoints  ->  VAmPI /books/v1)
+# Book tools  (VAmPI /books/v1)
 # --------------------------------------------------------------------------- #
 
 @mcp.tool()
