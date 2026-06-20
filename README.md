@@ -27,7 +27,7 @@ MCP_PORT=8000 \
 MCP_PATH=/mcp \
 VAMPI_BASE_URL=http://172.31.43.19:5000 \
 VAMPI_TIMEOUT=30 \
-/opt/mcp-vampi/.venv/bin/python /opt/mcp-vampi/server.py
+python3 server.py
 ```
 #### (onesy twosy or stateless)
 ```
