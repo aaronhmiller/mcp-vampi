@@ -42,7 +42,7 @@ TIMEOUT = float(os.environ.get("VAMPI_TIMEOUT", "30"))
 # For a long-running systemd service set MCP_TRANSPORT=streamable-http.
 MCP_TRANSPORT = os.environ.get("MCP_TRANSPORT", "stdio")
 MCP_HOST = os.environ.get("MCP_HOST", "0.0.0.0")
-MCP_PORT = int(os.environ.get("MCP_PORT", "8009"))
+MCP_PORT = int(os.environ.get("MCP_PORT", "8000"))
 MCP_PATH = os.environ.get("MCP_PATH", "/mcp")
 
 
