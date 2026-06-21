@@ -7,7 +7,7 @@ Before you do most things, you should know why. In this case, it's to understand
 ## Prerequisites
 * We're assuming you know your way around a command line and Linux.
   ### Server side
-* If not already there, install git and python311 (on RHEL, `sudo dnf install git python311`)
+* If not already there, install git and python311 (on RHEL, `sudo dnf install git python311` better yet, use Ubuntu 😉)
 * Git clone this repo down and set it up so you can do the below.
 * It assumes you've setup [vAmPI](https://github.com/erev0s/VAmPI) on another machine but w/in the same subnet.
 * You'll also want [venv](https://docs.python.org/3/library/venv.html) prepped.
@@ -25,10 +25,11 @@ MCP_HOST=0.0.0.0 \
 MCP_PORT=8000 \
 MCP_PATH=/mcp \
 MCP_STATELESS=false \
-VAMPI_BASE_URL=http://172.31.43.19:5000 \
+VAMPI_BASE_URL=http://<VAMPI_PRIVATE_IP>:5000 \
 VAMPI_TIMEOUT=30 \
 python3 server.py
 ```
+BTW: you can add `MCP_JSON_RESPONSE=true` to stateful and things still work.
 #### (onesy twosy or stateless)
 ```
 MCP_TRANSPORT=streamable-http \
@@ -37,7 +38,7 @@ MCP_PORT=8000 \
 MCP_PATH=/mcp \
 MCP_STATELESS=true \
 MCP_JSON_RESPONSE=true \
-VAMPI_BASE_URL=http://172.31.43.19:5000 \
+VAMPI_BASE_URL=http://<VAMPI_PRIVATE_IP>:5000 \
 VAMPI_TIMEOUT=30 \
 python3 server.py
 ```
@@ -86,8 +87,9 @@ The diagram below shows us how we've wired things together. We'll start from vAm
 ╚═════════════════════════════════════════════════════════════════════════╝
                 │
                 │  HTTP (httpx) · Authorization: Bearer <JWT>
-                │  VAMPI_BASE_URL = http://172.31.43.19:5000
-                ▼
+                │  VAMPI_BASE_URL = http://172.31.43.19:5000 
+                │                        # this ^ ip will be different
+                ▼                        # in your environment
 ┌────────────────────────────────────────────────────────────────────────┐
 │  VAmPI Flask API   vuln_app · 0.0.0.0:5000 · debug=True   [app.py]     │
 │  flags:  vuln = $vulnerable (default 1)   alive = $tokentimetolive(60) │
@@ -144,7 +146,7 @@ When you've everything wired up, you can run API commands in plain English!
 ## Debugging
 When you need to diagnose something, after asking Claude, lean into STDOUT for the server, [curl](https://curl.se/) or [httpie](https://httpie.io/) for the client commands. Here are a couple representative commands to get you started. The rest are deriveable from the [OAS](https://github.com/erev0s/VAmPI/blob/master/openapi_specs/openapi3.yml) or the [Postman Collection](https://github.com/erev0s/VAmPI/blob/master/openapi_specs/VAmPI.postman_collection.json):
 
-#### populate the db
+#### populate the db with raw curl call directly to VAmPI
 request: `curl 18.191.213.77:5000/createdb`
 <br>
 response: `{ "message": "Database populated." }`
@@ -159,3 +161,10 @@ res:
     "status": "success"                                                                  
 }
 ```
+#### when MCP working
+prompt: "Please use the createdb tool to initialize the Vampi database."
+LLM reply: "Create db
+Create db
+Database populated. — bridge is healthy on the new session and the reseed went through clean.
+
+You're back to the baseline: users name1/name2/admin (creds pass1/pass2/admin1234), three books with freshly randomized titles."
