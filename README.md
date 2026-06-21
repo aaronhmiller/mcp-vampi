@@ -50,6 +50,8 @@ Into your MCP server stanza (screenshot towards bottom) in your Claude Desktop D
       "args": ["-y", "mcp-remote", "http://<IP_MCP_SERVER>:8000/mcp", "--allow-http"]
     }
 ```
+## Limitations
+I've been using Claude's voice chat mode to make things conversational and got enamored with the idea of being able to "talk" with my APIs finally! Alas, when doing tests, it seems that voice mode and MCP tools are currently mutually exclusive. Darn! Note that with SOTA AI changing rapidly, that might change at a moment's notice, so keep checking back occassionally. But as of Summer 2026, voice and MCP Tools are not working well in a streaming mode.
 ## Overview and Background
 The diagram below shows us how we've wired things together. We'll start from vAmPI (a Flask app) and ignore the components below it (database and models). Notice the mapping from REST to MCP starting near the top of the third box below. Notice how `/createdb` (REST-ified) becomes `populate_db` (MCPized). The MCP Server uses [JSON RPC (Remote Procedure Calls)](https://www.jsonrpc.org/specification) to abstract & standardize the lower level implementation of RESTful interfaces. By taking this step, MCP enables [LLM agents](https://medium.com/@lekeonilude/the-role-of-mcp-in-llm-agents-cff9fc5fa96c) to use a single repeatable structure to call most popular APIs out there today.
 ```
