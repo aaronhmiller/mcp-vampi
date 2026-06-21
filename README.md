@@ -12,7 +12,6 @@ Before you do most things, you should know why. In this case, it's to understand
 * It assumes you've setup [vAmPI](https://github.com/erev0s/VAmPI) on another machine but w/in the same subnet.
 * You'll also want [venv](https://docs.python.org/3/library/venv.html) prepped.
 * [Install the requirements](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#using-a-requirements-file)
-* Be gentle on yourself: `sudo chown -R $USER:$USER /opt/mcp-vampi`
   ### Client side
 * A [Claude](https://claude.ai) account and Claude Desktop
 * And [Node](https://nodejs.org/en/download)
@@ -25,6 +24,7 @@ MCP_TRANSPORT=streamable-http \
 MCP_HOST=0.0.0.0 \
 MCP_PORT=8000 \
 MCP_PATH=/mcp \
+MCP_STATELESS=false \
 VAMPI_BASE_URL=http://172.31.43.19:5000 \
 VAMPI_TIMEOUT=30 \
 python3 server.py
@@ -39,7 +39,7 @@ MCP_STATELESS=true \
 MCP_JSON_RESPONSE=true \
 VAMPI_BASE_URL=http://172.31.43.19:5000 \
 VAMPI_TIMEOUT=30 \
-sudo /opt/mcp-vampi/.venv/bin/python /opt/mcp-vampi/server.py
+python3 server.py
 ```
 NOTE: transport unintuitively stays streamable, but we've added MCP_STATELESS and MCP_JSON_RESPONSE and set them both to TRUE.
 ### Client (Claude Desktop) side
@@ -51,7 +51,7 @@ Into your MCP server stanza (screenshot towards bottom) in your Claude Desktop D
     }
 ```
 ## Limitations
-I've been using Claude's voice chat mode to make things conversational and got enamored with the idea of being able to "talk" with my APIs finally! Alas, when doing tests, it seems that voice mode and MCP tools are currently mutually exclusive. Darn! Note that with SOTA AI changing rapidly, that might change at a moment's notice, so keep checking back occassionally. But as of Summer 2026, voice and MCP Tools are not working well in a streaming mode.
+I've been using Claude's voice chat mode to make things conversational and got enamored with the idea of being able to "talk" with my APIs finally! Alas, when doing tests, it seems that voice mode and MCP tools are currently mutually exclusive due to technical issues with latency of text to speech and MCP layer concerns. Darn! Note that with SOTA AI changing rapidly, that might change at a moment's notice, so keep checking back occassionally. But as of Summer 2026, voice and MCP Tools are not yet working together.
 ## Overview and Background
 The diagram below shows us how we've wired things together. We'll start from vAmPI (a Flask app) and ignore the components below it (database and models). Notice the mapping from REST to MCP starting near the top of the third box below. Notice how `/createdb` (REST-ified) becomes `populate_db` (MCPized). The MCP Server uses [JSON RPC (Remote Procedure Calls)](https://www.jsonrpc.org/specification) to abstract & standardize the lower level implementation of RESTful interfaces. By taking this step, MCP enables [LLM agents](https://medium.com/@lekeonilude/the-role-of-mcp-in-llm-agents-cff9fc5fa96c) to use a single repeatable structure to call most popular APIs out there today.
 ```
