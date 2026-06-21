@@ -62,6 +62,7 @@ The diagram below shows us how we've wired things together. We'll start from vAm
                 │
                 │  MCP · Streamable HTTP
                 │  POST http://3.19.71.128:8000/mcp
+                │          # public IP ^ so your desktop LLM can reach it
                 ▼
 ╔═════════════════════════════════════════════════════════════════════════╗
 ║  systemd unit:  vampi-mcp.service                                       ║
