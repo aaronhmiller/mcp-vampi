@@ -69,7 +69,7 @@ The diagram below shows us how we've wired things together. We'll start from vAm
 ║  User/Group=vampimcp   WorkingDirectory=/opt/vampi-mcp                  ║
 ║  ExecStart=/opt/vampi-mcp/.venv/bin/python server.py                    ║
 ║  Restart=on-failure · hardening: NoNewPrivileges, ProtectSystem=strict… ║
-║  Env: MCP_TRANSPORT=streamable-http  MCP_HOST=0.0.0.0  MCP_PORT=8009  ║
+║  Env: MCP_TRANSPORT=streamable-http  MCP_HOST=0.0.0.0  MCP_PORT=8009    ║
 ║       MCP_PATH=/mcp   VAMPI_BASE_URL=…:5000   VAMPI_TIMEOUT=30          ║
 ║                                                                         ║
 ║   ┌────────────────────────────────────────────────────────────────┐    ║
