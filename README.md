@@ -1,3 +1,4 @@
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/aaronhmiller/mcp-vampi?utm_source=oss&utm_medium=github&utm_campaign=aaronhmiller%2Fmcp-vampi&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 # mcp-vampi
 Get [vAmPI](https://github.com/erev0s/VAmPI) ready for agentification
 ## Shoulder of giant
