@@ -29,7 +29,7 @@ import os
 from typing import Any, Optional
 
 import httpx
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
 # --------------------------------------------------------------------------- #
 # Configuration & shared state
@@ -61,13 +61,10 @@ def _env_flag(name: str, default: bool) -> bool:
 MCP_JSON_RESPONSE = _env_flag("MCP_JSON_RESPONSE", True)
 MCP_STATELESS = _env_flag("MCP_STATELESS", True)
 
-mcp = FastMCP(
-    "vampi",
-    host=MCP_HOST,
-    port=MCP_PORT,
-    streamable_http_path=MCP_PATH,
-    json_response=MCP_JSON_RESPONSE,
-    stateless_http=MCP_STATELESS,
+mcp = MCPServer(
+    name="vampi",
+    version="0.1.0",
+    description="MCP interface for REST API",
 )
 
 # Cached bearer token populated by `login`.
@@ -322,5 +319,18 @@ def get_book_by_title(
     )
 
 
+import asyncio
+
 if __name__ == "__main__":
-    mcp.run(transport=MCP_TRANSPORT)
+    if MCP_TRANSPORT == "stdio":
+        asyncio.run(mcp.run_stdio_async())
+    elif MCP_TRANSPORT == "streamable-http":
+        asyncio.run(
+            mcp.run_streamable_http_async(
+                host=MCP_HOST,
+                port=MCP_PORT,
+                path=MCP_PATH,
+            )
+        )
+    else:
+        raise ValueError(f"Unknown transport: {MCP_TRANSPORT}")
