@@ -318,19 +318,5 @@ def get_book_by_title(
         use_session_token=True,
     )
 
-
-import asyncio
-
-if __name__ == "__main__":
-    if MCP_TRANSPORT == "stdio":
-        asyncio.run(mcp.run_stdio_async())
-    elif MCP_TRANSPORT == "streamable-http":
-        asyncio.run(
-            mcp.run_streamable_http_async(
-                host=MCP_HOST,
-                port=MCP_PORT,
-                path=MCP_PATH,
-            )
-        )
-    else:
-        raise ValueError(f"Unknown transport: {MCP_TRANSPORT}")
+import uvicorn
+uvicorn.run(mcp.streamable_http_app(), host=MCP_HOST, port=MCP_PORT)
