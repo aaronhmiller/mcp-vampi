@@ -61,10 +61,19 @@ def _env_flag(name: str, default: bool) -> bool:
 MCP_JSON_RESPONSE = _env_flag("MCP_JSON_RESPONSE", True)
 MCP_STATELESS = _env_flag("MCP_STATELESS", True)
 
+from mcp.server.transport_security import TransportSecuritySettings
+
 mcp = MCPServer(
     name="vampi",
     version="0.1.0",
     description="MCP interface for REST API",
+)
+
+# add the IP (with and without port, some SDK versions match differently)
+mcp.settings.transport_security = TransportSecuritySettings(
+    enabled=True,  # keep protection on
+    allowed_hosts=["165.232.140.157", "165.232.140.157:8000"],
+    allowed_origins=["http://165.232.140.157:8000"],
 )
 
 # Cached bearer token populated by `login`.
