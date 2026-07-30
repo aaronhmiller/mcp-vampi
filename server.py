@@ -69,12 +69,9 @@ mcp = MCPServer(
     description="MCP interface for REST API",
 )
 
-# add the IP (with and without port, some SDK versions match differently)
-mcp.settings.transport_security = TransportSecuritySettings(
-    enabled=True,  # keep protection on
-    allowed_hosts=["165.232.140.157", "165.232.140.157:8000"],
-    allowed_origins=["http://165.232.140.157:8000"],
-)
+# Transport-level config (host/port/transport_security/json_response/stateless_http)
+# lives on run()/streamable_http_app() in the v2 SDK, not on mcp.settings — see the
+# bottom of this file where streamable_http_app() is built.
 
 # Cached bearer token populated by `login`.
 _session: dict[str, Optional[str]] = {"auth_token": None, "username": None}
@@ -328,4 +325,16 @@ def get_book_by_title(
     )
 
 import uvicorn
-uvicorn.run(mcp.streamable_http_app(), host=MCP_HOST, port=MCP_PORT)
+
+app = mcp.streamable_http_app(
+    transport_security=TransportSecuritySettings(
+        enable_dns_rebinding_protection=True,
+        # add the IP (with and without port, some SDK versions match differently)
+        allowed_hosts=["165.232.140.157", "165.232.140.157:8000"],
+        allowed_origins=["http://165.232.140.157:8000"],
+    ),
+    json_response=MCP_JSON_RESPONSE,
+    stateless_http=MCP_STATELESS,
+    streamable_http_path=MCP_PATH,
+)
+uvicorn.run(app, host=MCP_HOST, port=MCP_PORT)
